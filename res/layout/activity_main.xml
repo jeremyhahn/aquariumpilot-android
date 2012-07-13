@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <ToggleButton 
+	    android:id="@+id/outlet1"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet1_text"
+	    android:textOff="@string/outlet1_text"
+	    android:onClick="onOutlet1Clicked"/>
+
+    <ToggleButton 
+	    android:id="@+id/outlet2"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet2_text"
+	    android:textOff="@string/outlet2_text"
+	    android:onClick="onOutlet2Clicked"/>
+
+    <ToggleButton 
+	    android:id="@+id/outlet3"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet3_text"
+	    android:textOff="@string/outlet3_text"
+	    android:onClick="onOutlet3Clicked"/>
+    
+    <ToggleButton 
+	    android:id="@+id/outlet4"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet4_text"
+	    android:textOff="@string/outlet4_text"
+	    android:onClick="onOutlet4Clicked"/>
+    
+    <ToggleButton 
+	    android:id="@+id/outlet5"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet5_text"
+	    android:textOff="@string/outlet5_text"
+	    android:onClick="onOutlet5Clicked"/>
+
+    <ToggleButton 
+	    android:id="@+id/outlet6"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet6_text"
+	    android:textOff="@string/outlet6_text"
+	    android:onClick="onOutlet6Clicked"/>
+    
+    <ToggleButton 
+	    android:id="@+id/outlet7"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet7_text"
+	    android:textOff="@string/outlet7_text"
+	    android:onClick="onOutlet7Clicked"/>
+    
+    <ToggleButton 
+	    android:id="@+id/outlet8"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/outlet8_text"
+	    android:textOff="@string/outlet8_text"
+	    android:onClick="onOutlet8Clicked"/>
+    
+    <ToggleButton 
+	    android:id="@+id/rodiAquarium"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/rodi_aquarium_text"
+	    android:textOff="@string/rodi_aquarium_text"
+	    android:onClick="onRoDiAquariumClicked"/>
+    
+    <ToggleButton 
+	    android:id="@+id/rodiReservoir"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/rodi_reservoir_text"
+	    android:textOff="@string/rodi_reservoir_text"
+	    android:onClick="onRoDiReservoirClicked"/>
+    
+    <ToggleButton 
+	    android:id="@+id/aquariumDrain"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textOn="@string/aquarium_drain_text"
+	    android:textOff="@string/aquarium_drain_text"
+	    android:onClick="onAquariumDrainClicked"/>
+    
+</LinearLayout>
+    

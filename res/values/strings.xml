@@ -1,0 +1,26 @@
+<resources>
+
+    <string name="app_name">AquariumPilot</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">AquariumPilot </string>
+
+    <string name="button_send">Send</string>
+    <string name="edit_message">Edit</string>
+
+    <string name="on_text">On</string>
+    <string name="off_text">Off</string>
+
+    <string name="outlet1_text">Outlet 1</string>
+    <string name="outlet2_text">Outlet 2</string>
+    <string name="outlet3_text">Outlet 3</string>
+    <string name="outlet4_text">Outlet 4 - RO/DI UV Light</string>
+    <string name="outlet5_text">Outlet 5 - Saltwater Reservoir Powerhead</string>
+    <string name="outlet6_text">Outlet 6 - Saltwater Reservoir -> Aquarium</string>
+    <string name="outlet7_text">Outlet 7 - Air Pump</string>
+    <string name="outlet8_text">Outlet 8</string>
+
+    <string name="rodi_aquarium_text">RO/DI -> Aquarium</string>
+    <string name="rodi_reservoir_text">RO/DI -> Saltwater Reservoir</string>
+    <string name="aquarium_drain_text">Aquarium -> Drain</string>
+
+</resources>
