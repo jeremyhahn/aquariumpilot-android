@@ -1,10 +1,16 @@
 package com.aquariumpilot;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.http.client.ClientProtocolException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,34 +21,108 @@ import com.aquariumpilot.arduino.WeatherStationClient;
 
 public class MainActivity extends Activity {
 
-	Timer timer;
 	public final static String EXTRA_MESSAGE = "";
+
+	private Timer timer;
+
 	private WeatherStationClient client;
 
-    @Override
+	private ToggleButton outlet1;
+	private ToggleButton outlet2;
+	private ToggleButton outlet3;
+	private ToggleButton outlet4;
+	private ToggleButton outlet5;
+	private ToggleButton outlet6;
+	private ToggleButton outlet7;
+	private ToggleButton outlet8;
+	private ToggleButton rodiAquarium;
+	private ToggleButton rodiReservoir;
+	private ToggleButton aquariumDrain;
+	
+	private UpdateButtonStatesAsyncTask updateButtonStatesAsyncTask;
+	
+	private ProgressDialog progressDialog;
+	private AlertDialog errorDialog;
+
+	@Override
     public void onCreate(Bundle savedInstanceState) {
 
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
+        client = new WeatherStationClient();
+        
+        outlet1 = ((ToggleButton)findViewById(R.id.outlet1));
+        outlet2 = ((ToggleButton)findViewById(R.id.outlet2));
+        outlet3 = ((ToggleButton)findViewById(R.id.outlet3));
+        outlet4 = ((ToggleButton)findViewById(R.id.outlet4));
+        outlet5 = ((ToggleButton)findViewById(R.id.outlet5));
+        outlet6 = ((ToggleButton)findViewById(R.id.outlet6));
+        outlet7 = ((ToggleButton)findViewById(R.id.outlet7));
+        outlet8 = ((ToggleButton)findViewById(R.id.outlet8));
+        rodiAquarium = ((ToggleButton)findViewById(R.id.rodiAquarium));
+        rodiReservoir = ((ToggleButton)findViewById(R.id.rodiReservoir));
+        aquariumDrain = ((ToggleButton)findViewById(R.id.aquariumDrain));
 
-	        client = new WeatherStationClient();
-	        pollArduinoAndSetButtonStates();
-	
-	        timer = new Timer();
-	        timer.schedule(new PollArduinoAndSetButtonStatesTask(new WeatherStationClient()), 0,60000); // Every minute
-        }
-        catch(Exception e) {
+        //updateButtonStatesAsyncTask = new UpdateButtonStatesAsyncTask();
+        //updateButtonStatesAsyncTask.execute(this);
 
-        	AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-        	alertDialog.setTitle("Error");
-        	alertDialog.setMessage("Could not connect to the AquariumPilot system at the house.");
-        	//alertDialog.setIcon(R.drawable.icon);
-        	alertDialog.show();
-        }
+        Log.i("MainActivity.onCreate", "Complete");
+	}
+
+    @Override
+    public void onResume() {
+    	
+    	super.onResume();
+
+    	Log.i("MainActivity.onResume", "Executed");
+    	
+    	timer = new Timer();
+        timer.schedule(new PollArduinoAndSetButtonStatesTask(), 0,60000); // Every minute
     }
 
+    @Override
+    public void onPause() {
+    	
+    	super.onPause();
+
+    	Log.i("MainActivity.onPause", "Executed");
+
+    	if(timer != null) {
+    		
+    		timer.cancel();
+    		timer = null;
+    	}
+    }
+    
+    @Override
+    public void onStop() {
+    	
+    	super.onStop();
+
+    	Log.i("MainActivity.onStop", "Executed");
+
+    	if(timer != null) {
+    		
+    		timer.cancel();
+    		timer = null;
+    	}
+    }
+    
+    @Override 
+    public void onDestroy() {
+    	
+    	super.onDestroy();
+
+    	Log.i("MainActivity.onDestroy", "Executed");
+
+    	if(timer != null) {
+    		
+    		timer.cancel();
+    		timer = null;
+    	}
+    }
+    
     /*
     public void sendMessage(View view) {
 
@@ -58,201 +138,226 @@ public class MainActivity extends Activity {
 
     public void onOutlet1Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet1);
-
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket1 on");
-            client.setSocket1(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket1 off");
-        	client.setSocket1(DigitalPinValue.LOW);
-        }
+    	try {
+    		
+    		if(outlet1.isChecked()) {
+    			Log.i("Toggle", "Turning socket1 on");
+    			client.setSocket1(DigitalPinValue.HIGH);
+    		}
+    		else {
+    			Log.i("Toggle", "Turning socket1 off");
+    			client.setSocket1(DigitalPinValue.LOW);
+    		}
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
     
     public void onOutlet2Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet2);
-
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket2 on");
-            client.setSocket2(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket2 off");
-        	client.setSocket2(DigitalPinValue.LOW);
-        }
+    	try {
+    		
+    		if(outlet2.isChecked()) {
+    			Log.i("Toggle", "Turning socket2 on");
+    			client.setSocket2(DigitalPinValue.HIGH);
+    		}
+    		else {
+    			Log.i("Toggle", "Turning socket2 off");
+    			client.setSocket2(DigitalPinValue.LOW);
+    		}
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
 
     public void onOutlet3Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet3);
+    	try {
 
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket3 on");
-            client.setSocket3(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket3 off");
-        	client.setSocket3(DigitalPinValue.LOW);
-        }
+	        if(outlet3.isChecked()) {
+	            Log.i("Toggle", "Turning socket3 on");
+	            client.setSocket3(DigitalPinValue.HIGH);
+	        }
+	        else {
+	        	Log.i("Toggle", "Turning socket3 off");
+	        	client.setSocket3(DigitalPinValue.LOW);
+	        }
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
     
     public void onOutlet4Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet4);
+    	try {
 
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket4 on");
-            client.setSocket4(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket4 off");
-        	client.setSocket4(DigitalPinValue.LOW);
-        }
+	        if(outlet4.isChecked()) {
+	            Log.i("Toggle", "Turning socket4 on");
+	            client.setSocket4(DigitalPinValue.HIGH);
+	        }
+	        else {
+	        	Log.i("Toggle", "Turning socket4 off");
+	        	client.setSocket4(DigitalPinValue.LOW);
+	        }
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
     
     public void onOutlet5Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet5);
+    	try {
 
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket5 on");
-            client.setSocket5(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket5 off");
-        	client.setSocket5(DigitalPinValue.LOW);
-        }
+	        if(outlet5.isChecked()) {
+	            Log.i("Toggle", "Turning socket5 on");
+	            client.setSocket5(DigitalPinValue.HIGH);
+	        }
+	        else {
+	        	Log.i("Toggle", "Turning socket5 off");
+	        	client.setSocket5(DigitalPinValue.LOW);
+	        }
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
     
     public void onOutlet6Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet6);
+    	try {
 
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket6 on");
-            client.setSocket6(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket6 off");
-        	client.setSocket6(DigitalPinValue.LOW);
-        }
+	        if(outlet6.isChecked()) {
+	            Log.i("Toggle", "Turning socket6 on");
+	            client.setSocket6(DigitalPinValue.HIGH);
+	        }
+	        else {
+	        	Log.i("Toggle", "Turning socket6 off");
+	        	client.setSocket6(DigitalPinValue.LOW);
+	        }
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
     
     public void onOutlet7Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet7);
+    	try {
 
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket7 on");
-            client.setSocket7(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket7 off");
-        	client.setSocket7(DigitalPinValue.LOW);
-        }
+	        if(outlet7.isChecked()) {
+	            Log.i("Toggle", "Turning socket7 on");
+	            client.setSocket7(DigitalPinValue.HIGH);
+	        }
+	        else {
+	        	Log.i("Toggle", "Turning socket7 off");
+	        	client.setSocket7(DigitalPinValue.LOW);
+	        }
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
     
     public void onOutlet8Clicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.outlet8);
+    	try {
 
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning socket8 on");
-            client.setSocket8(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning socket8 off");
-        	client.setSocket8(DigitalPinValue.LOW);
-        }
+	        if(outlet8.isChecked()) {
+	            Log.i("Toggle", "Turning socket8 on");
+	            client.setSocket8(DigitalPinValue.HIGH);
+	        }
+	        else {
+	        	Log.i("Toggle", "Turning socket8 off");
+	        	client.setSocket8(DigitalPinValue.LOW);
+	        }
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
 
     public void onRoDiAquariumClicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.rodiAquarium);
-
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning RO/DI -> aquarium solenoid on");
-            client.setRoDiAquariumSolenoid(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning RO/DI -> aquarium solenoid off");
-        	client.setRoDiAquariumSolenoid(DigitalPinValue.LOW);
-        }
+    	try {
+    		
+    		if(rodiAquarium.isChecked()) {
+    			Log.i("Toggle", "Turning RO/DI -> aquarium solenoid on");
+    			client.setRoDiAquariumSolenoid(DigitalPinValue.HIGH);
+    		}
+    		else {
+    			Log.i("Toggle", "Turning RO/DI -> aquarium solenoid off");
+    			client.setRoDiAquariumSolenoid(DigitalPinValue.LOW);
+    		}
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
     }
     
     public void onRoDiReservoirClicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.rodiReservoir);
-
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning RO/DI -> saltwater reservoir solenoid on");
-            client.setRoDiReservoirSolenoid(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning RO/DI -> saltwater reservoir solenoid off");
-        	client.setRoDiReservoirSolenoid(DigitalPinValue.LOW);
-        }
+    	try {
+    		
+    		if(rodiReservoir.isChecked()) {
+    			Log.i("Toggle", "Turning RO/DI -> saltwater reservoir solenoid on");
+    			client.setRoDiReservoirSolenoid(DigitalPinValue.HIGH);
+    		}
+    		else {
+    			Log.i("Toggle", "Turning RO/DI -> saltwater reservoir solenoid off");
+    			client.setRoDiReservoirSolenoid(DigitalPinValue.LOW);
+    		}
+    	}
+    	catch(Exception e) {
+    		handleException(e);
+    	}
+        
     }
     
     public void onAquariumDrainClicked(View view) {
 
-        ToggleButton button = (ToggleButton)findViewById(R.id.aquariumDrain);
+    	try {
 
-        if(button.isChecked()) {
-            Log.i("Toggle", "Turning aquarium drain solenoid on");
-            client.setAquariumDrainSolenoid(DigitalPinValue.HIGH);
-        }
-        else {
-        	Log.i("Toggle", "Turning aquarium drain solenoid off");
-        	client.setAquariumDrainSolenoid(DigitalPinValue.LOW);
+    		if(aquariumDrain.isChecked()) {
+	            Log.i("Toggle", "Turning aquarium drain solenoid on");
+	            client.setAquariumDrainSolenoid(DigitalPinValue.HIGH);
+	        }
+	        else {
+	        	Log.i("Toggle", "Turning aquarium drain solenoid off");
+	        	client.setAquariumDrainSolenoid(DigitalPinValue.LOW);
+	        }
+    	}
+        catch(Exception e) {
+        	handleException(e);
         }
     }
 
-    private void pollArduinoAndSetButtonStates() {
-    	
-    	if(client.getSocket1().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet1)).toggle();
-        
-        if(client.getSocket2().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet2)).toggle();
-        
-        if(client.getSocket3().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet3)).toggle();
-        
-        if(client.getSocket4().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet4)).toggle();
-        
-        if(client.getSocket5().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet5)).toggle();
-        
-        if(client.getSocket6().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet6)).toggle();
-        
-        if(client.getSocket7().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet7)).toggle();
-        
-        if(client.getSocket8().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.outlet8)).toggle();
-        
-        if(client.getRoDiAquariumSolenoid().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.rodiAquarium)).toggle();
+    private void handleException(Exception e) {
 
-        if(client.getRoDiReservoirSolenoid().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.rodiReservoir)).toggle();
+    	if(progressDialog.isShowing())
+    	   progressDialog.cancel();
 
-        if(client.getAquariumDrainSolenoid().equals(DigitalPinValue.HIGH))
-        	((ToggleButton)findViewById(R.id.aquariumDrain)).toggle();
+    	AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+    	.setTitle("Error")
+    	.setMessage(e.getMessage())
+    	.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		});
+
+		errorDialog = builder.create();
+		errorDialog.show();
+
+		e.printStackTrace();
     }
 
     class PollArduinoAndSetButtonStatesTask extends TimerTask {
-
-    	private WeatherStationClient client;
-
-    	public PollArduinoAndSetButtonStatesTask(WeatherStationClient client) {
-    		this.client = client;
-    	}
 
     	@Override
     	public void run() {
@@ -262,19 +367,115 @@ public class MainActivity extends Activity {
     			@Override
     			public void run() {
 
-		        	((ToggleButton)findViewById(R.id.outlet1)).setChecked(client.getSocket1().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.outlet2)).setChecked(client.getSocket2().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.outlet3)).setChecked(client.getSocket3().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.outlet4)).setChecked(client.getSocket4().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.outlet5)).setChecked(client.getSocket5().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.outlet6)).setChecked(client.getSocket6().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.outlet7)).setChecked(client.getSocket7().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.outlet8)).setChecked(client.getSocket8().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.rodiAquarium)).setChecked(client.getRoDiAquariumSolenoid().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.rodiReservoir)).setChecked(client.getRoDiReservoirSolenoid().equals(DigitalPinValue.HIGH));
-		        	((ToggleButton)findViewById(R.id.aquariumDrain)).setChecked(client.getAquariumDrainSolenoid().equals(DigitalPinValue.HIGH));
+    				Log.i("MainActivity.PollArduinoAndSetButtonStatesTask", "Executing");
+
+    				updateButtonStatesAsyncTask = new UpdateButtonStatesAsyncTask();
+    		        updateButtonStatesAsyncTask.execute(this);
     			}
     		});
+    	}
+    }
+
+    private class UpdateButtonStatesAsyncTask extends AsyncTask<Object, Void, Object> {
+
+    	@Override
+    	protected void onPreExecute() {
+    		
+    		super.onPreExecute();
+
+    		Log.i("UpdateButtonStatesAsyncTask.onPreExecute", "Executing");
+    		progressDialog = ProgressDialog.show(MainActivity.this, "", "Loading. Please wait...", true);
+    	}
+
+    	@Override
+    	protected Object doInBackground(Object... params) {
+
+    		Log.i("MainActivity.UpdateButtonStatesAsyncTask.doInBackground", "Executing");
+
+        	try {
+
+				outlet1.setChecked(client.getSocket1().equals(DigitalPinValue.HIGH));
+	        	outlet2.setChecked(client.getSocket2().equals(DigitalPinValue.HIGH));
+	        	outlet3.setChecked(client.getSocket3().equals(DigitalPinValue.HIGH));
+	        	outlet4.setChecked(client.getSocket4().equals(DigitalPinValue.HIGH));
+	        	outlet5.setChecked(client.getSocket5().equals(DigitalPinValue.HIGH));
+	        	outlet6.setChecked(client.getSocket6().equals(DigitalPinValue.HIGH));
+	        	outlet7.setChecked(client.getSocket7().equals(DigitalPinValue.HIGH));
+	        	outlet8.setChecked(client.getSocket8().equals(DigitalPinValue.HIGH));
+	        	rodiAquarium.setChecked(client.getRoDiAquariumSolenoid().equals(DigitalPinValue.HIGH));
+	        	rodiReservoir.setChecked(client.getRoDiReservoirSolenoid().equals(DigitalPinValue.HIGH));
+	        	aquariumDrain.setChecked(client.getAquariumDrainSolenoid().equals(DigitalPinValue.HIGH));
+        	}
+        	catch(ClientProtocolException e) {
+				e.printStackTrace();
+        		return e;
+			}
+        	catch(IOException e) {
+				e.printStackTrace();
+				return e;
+			}
+
+        	progressDialog.cancel();
+        	return "complete";
+    	}
+
+    	@Override
+    	protected void onPostExecute(Object result) {
+
+    		super.onPostExecute(result);
+    		
+    		progressDialog.dismiss();
+
+    		Log.i("UpdateButtonStatesAsyncTask.onPostExecute", result.toString());
+
+    		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+    		
+    		if(result instanceof Exception) {
+
+    			if(((Exception) result).getMessage().contains("timed out")) {
+
+    				builder
+    				  .setTitle("Network Error")
+        	    	  .setMessage("Make sure your connected to JJ-WIFI and try running AquariumPilot again.")
+        	    	  .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+        				@Override
+        				public void onClick(DialogInterface dialog, int which) {
+        					
+        					if(timer != null) {
+        					
+        						timer.cancel();
+        						timer = null;
+        					}
+        					errorDialog.dismiss();
+        					MainActivity.this.finish();
+        				}
+        			});
+    			}
+    			else {
+
+	    			builder
+	    	    	  .setTitle("Error")
+	    	    	  .setMessage(((Exception) result).getMessage())
+	    	    	  .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+	    				@Override
+	    				public void onClick(DialogInterface dialog, int which) {
+	    					
+	    					if(timer != null) {
+	        					
+        						timer.cancel();
+        						timer = null;
+        					}
+	    					errorDialog.dismiss();
+        					MainActivity.this.finish();
+	    				}
+	    			});
+    			}
+
+    			errorDialog = builder.create();
+    			errorDialog.show();
+    		}
     	}
     }
 }

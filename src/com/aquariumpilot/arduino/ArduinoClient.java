@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -27,47 +26,34 @@ public abstract class ArduinoClient {
 		this.apiKey = apiKey;
 	}
 
-	protected String digitalRead(int pin) {
+	protected String digitalRead(int pin) throws ClientProtocolException, IOException {
 
 		String url = new StringBuilder("http://").append(address).append("/").append(apiKey).append("/").append(pin).toString();
     	String json = "";
 
     	Log.i("ArduinoClient.digitalRead", "Performing HTTP GET request to: " + url);
     	
-        try {
-            DefaultHttpClient httpClient = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(url);
+        DefaultHttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(url);
 
-            HttpResponse httpResponse = httpClient.execute(httpGet);
-            HttpEntity httpEntity = httpResponse.getEntity();
-            is = httpEntity.getContent();
+        HttpResponse httpResponse = httpClient.execute(httpGet);
+        HttpEntity httpEntity = httpResponse.getEntity();
+        is = httpEntity.getContent();
  
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
         }
- 
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            is.close();
-            json = sb.toString();
-            Log.i("ArduinoClient.digitalRead", "Response: " + json);
-        } catch (Exception e) {
-            Log.e("Buffer Error", "Error converting result " + e.toString());
-        }
+        is.close();
+        json = sb.toString();
+        Log.i("ArduinoClient.digitalRead", "Response: " + json);
         
         return json;
     }
 
-	protected String digitalWrite(int pin, DigitalPinValue value) {
+	protected String digitalWrite(int pin, DigitalPinValue value) throws ClientProtocolException, IOException {
 
 		String pinValue = value.equals(DigitalPinValue.HIGH) ? "HIGH" : "LOW";
 		String url = new StringBuilder("http://").append(address).append("/").append(apiKey).append("/").append(pin).append("/").append(pinValue).toString();
@@ -75,35 +61,22 @@ public abstract class ArduinoClient {
 
     	Log.i("ArduinoClient.digitalWrite", "Performing HTTP GET request to: " + url);
 
-        try {
-            DefaultHttpClient httpClient = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(url);
+        DefaultHttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(url);
 
-            HttpResponse httpResponse = httpClient.execute(httpGet);
-            HttpEntity httpEntity = httpResponse.getEntity();
-            is = httpEntity.getContent();
+        HttpResponse httpResponse = httpClient.execute(httpGet);
+        HttpEntity httpEntity = httpResponse.getEntity();
+        is = httpEntity.getContent();
  
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
         }
- 
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            is.close();
-            json = sb.toString();
-            Log.i("ArduinoClient.digitalWrite", "Response: " + json);
-        } catch (Exception e) {
-            Log.e("Buffer Error", "Error converting result " + e.toString());
-        }
+        is.close();
+        json = sb.toString();
+        Log.i("ArduinoClient.digitalWrite", "Response: " + json);
         
         return json;
     }

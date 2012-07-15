@@ -22,5 +22,7 @@
     <string name="rodi_aquarium_text">RO/DI -> Aquarium</string>
     <string name="rodi_reservoir_text">RO/DI -> Saltwater Reservoir</string>
     <string name="aquarium_drain_text">Aquarium -> Drain</string>
+    
+    <string name="label_ok">1</string>
 
 </resources>
