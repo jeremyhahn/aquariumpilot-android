@@ -1,6 +1,7 @@
 package com.aquariumpilot;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -394,17 +395,21 @@ public class MainActivity extends Activity {
 
         	try {
 
-				outlet1.setChecked(client.getSocket1().equals(DigitalPinValue.HIGH));
-	        	outlet2.setChecked(client.getSocket2().equals(DigitalPinValue.HIGH));
-	        	outlet3.setChecked(client.getSocket3().equals(DigitalPinValue.HIGH));
-	        	outlet4.setChecked(client.getSocket4().equals(DigitalPinValue.HIGH));
-	        	outlet5.setChecked(client.getSocket5().equals(DigitalPinValue.HIGH));
-	        	outlet6.setChecked(client.getSocket6().equals(DigitalPinValue.HIGH));
-	        	outlet7.setChecked(client.getSocket7().equals(DigitalPinValue.HIGH));
-	        	outlet8.setChecked(client.getSocket8().equals(DigitalPinValue.HIGH));
-	        	rodiAquarium.setChecked(client.getRoDiAquariumSolenoid().equals(DigitalPinValue.HIGH));
-	        	rodiReservoir.setChecked(client.getRoDiReservoirSolenoid().equals(DigitalPinValue.HIGH));
-	        	aquariumDrain.setChecked(client.getAquariumDrainSolenoid().equals(DigitalPinValue.HIGH));
+        		ArrayList<Boolean> list = new ArrayList<Boolean>();
+
+        		list.add(client.getSocket1().equals(DigitalPinValue.HIGH));
+        		list.add(client.getSocket2().equals(DigitalPinValue.HIGH));
+        		list.add(client.getSocket3().equals(DigitalPinValue.HIGH));
+        		list.add(client.getSocket4().equals(DigitalPinValue.HIGH));
+        		list.add(client.getSocket5().equals(DigitalPinValue.HIGH));
+        		list.add(client.getSocket6().equals(DigitalPinValue.HIGH));
+        		list.add(client.getSocket7().equals(DigitalPinValue.HIGH));
+        		list.add(client.getSocket8().equals(DigitalPinValue.HIGH));
+        		list.add(client.getRoDiAquariumSolenoid().equals(DigitalPinValue.HIGH));
+        		list.add(client.getRoDiReservoirSolenoid().equals(DigitalPinValue.HIGH));
+        		list.add(client.getAquariumDrainSolenoid().equals(DigitalPinValue.HIGH));
+
+        		return list;
         	}
         	catch(ClientProtocolException e) {
 				e.printStackTrace();
@@ -414,9 +419,6 @@ public class MainActivity extends Activity {
 				e.printStackTrace();
 				return e;
 			}
-
-        	progressDialog.cancel();
-        	return "complete";
     	}
 
     	@Override
@@ -427,55 +429,73 @@ public class MainActivity extends Activity {
     		progressDialog.dismiss();
 
     		Log.i("UpdateButtonStatesAsyncTask.onPostExecute", result.toString());
-
-    		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
     		
     		if(result instanceof Exception) {
-
-    			if(((Exception) result).getMessage().contains("timed out")) {
-
-    				builder
-    				  .setTitle("Network Error")
-        	    	  .setMessage("Make sure your connected to JJ-WIFI and try running AquariumPilot again.")
-        	    	  .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-        				@Override
-        				public void onClick(DialogInterface dialog, int which) {
-        					
-        					if(timer != null) {
-        					
-        						timer.cancel();
-        						timer = null;
-        					}
-        					errorDialog.dismiss();
-        					MainActivity.this.finish();
-        				}
-        			});
-    			}
-    			else {
-
-	    			builder
-	    	    	  .setTitle("Error")
-	    	    	  .setMessage(((Exception) result).getMessage())
-	    	    	  .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-	    				@Override
-	    				public void onClick(DialogInterface dialog, int which) {
-	    					
-	    					if(timer != null) {
-	        					
-        						timer.cancel();
-        						timer = null;
-        					}
-	    					errorDialog.dismiss();
-        					MainActivity.this.finish();
-	    				}
-	    			});
-    			}
-
-    			errorDialog = builder.create();
-    			errorDialog.show();
+    			handleException((Exception) result);
     		}
+
+    		ArrayList<Boolean> pinValues = (ArrayList<Boolean>) result;
+			
+			outlet1.setChecked(pinValues.get(0));
+			outlet2.setChecked(pinValues.get(1));
+	        outlet3.setChecked(pinValues.get(2));
+	        outlet4.setChecked(pinValues.get(3));
+	        outlet5.setChecked(pinValues.get(4));
+	        outlet6.setChecked(pinValues.get(5));
+	        outlet7.setChecked(pinValues.get(6));
+	        outlet8.setChecked(pinValues.get(7));
+	        rodiAquarium.setChecked(pinValues.get(8));
+	        rodiReservoir.setChecked(pinValues.get(9));
+	        aquariumDrain.setChecked(pinValues.get(10));
+    	}
+
+    	private void handleException(Exception e) {
+
+    		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+    		if(e.getMessage().contains("timed out")) {
+
+				builder
+				  .setTitle("Network Error")
+    	    	  .setMessage("Make sure your connected to JJ-WIFI and try running AquariumPilot again.")
+    	    	  .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+    				@Override
+    				public void onClick(DialogInterface dialog, int which) {
+    					
+    					if(timer != null) {
+    					
+    						timer.cancel();
+    						timer = null;
+    					}
+    					errorDialog.dismiss();
+    					MainActivity.this.finish();
+    				}
+    			});
+			}
+			else {
+
+    			builder
+    	    	  .setTitle("Error")
+    	    	  .setMessage(e.getMessage())
+    	    	  .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+    				@Override
+    				public void onClick(DialogInterface dialog, int which) {
+    					
+    					if(timer != null) {
+        					
+    						timer.cancel();
+    						timer = null;
+    					}
+    					errorDialog.dismiss();
+    					MainActivity.this.finish();
+    				}
+    			});
+			}
+
+			errorDialog = builder.create();
+			errorDialog.show();
     	}
     }
 }
